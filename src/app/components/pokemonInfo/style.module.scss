@@ -1,0 +1,16 @@
+.pokemon-info {
+  margin-top: 80px;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 0.625rem 0.25rem rgba(0,0,0,0.05);
+
+  h2 {
+    font-size: 24px;
+  }
+
+  .pokemon-info__stats {
+    p {
+      margin-top: 10px;
+    }
+  }
+}

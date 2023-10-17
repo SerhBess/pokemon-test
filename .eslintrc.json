@@ -26,6 +26,9 @@
     }
   },
   "rules": {
+    "react/no-array-index-key": "off",
+    "import/prefer-default-export": "off",
+    "react/function-component-definition": "off",
     "no-console": "error",
     "no-inline-comments": "error",
     "spaced-comment": ["error", "always", { "markers": ["/"] }],
@@ -53,13 +56,6 @@
         "components": ["Link"],
         "specialLink": ["hrefLeft", "hrefRight"],
         "aspects": ["invalidHref", "preferButton"]
-      }
-    ],
-    "react/function-component-definition": [
-      2,
-      {
-        "namedComponents": "arrow-function",
-        "unnamedComponents": "arrow-function"
       }
     ],
     "@typescript-eslint/no-unused-vars": ["warn"],

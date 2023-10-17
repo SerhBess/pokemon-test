@@ -1,95 +1,59 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
+
+import { useActionCreator } from '@/hooks/useActionCreator';
+import { pokemonActions, getPokemonByName } from '@/redux/reducers/pokemonSlice';
+import { useEffect, useState } from 'react';
+import { useAppSelector } from '@/hooks/redux';
+import { selectPokemon } from '@/redux/reducers/pokemonSelectors';
+import styles from './page.module.scss';
+import { Search } from './components/search';
+import { PokemonInfo } from './components/pokemonInfo';
+
+const allActions = {
+  ...pokemonActions,
+  getPokemonByName,
+};
 
 export default function Home() {
+  const wrappedPokemonActions = useActionCreator(allActions);
+  const pokemon = useAppSelector(selectPokemon);
+  const [ searchValue, setSearchValue ] = useState('');
+  const [ valueForPokemonApiCall, setValueForPokemonApiCall ] = useState('');
+  const [ searchHistory, setSearchHistory ] = useState<string[]>([]);
+
+  const handleSetValueForPokemonApiCall = () => {
+    const storedArray = localStorage.getItem('history');
+    const existingHistory = storedArray ? JSON.parse(storedArray) : [];
+
+    existingHistory.push(searchValue);
+
+    localStorage.setItem('history', JSON.stringify(existingHistory));
+    setValueForPokemonApiCall(searchValue);
+    setSearchHistory((prev) => [ ...prev, searchValue ]);
+  };
+
+  useEffect(() => {
+    const storedArray = localStorage.getItem('history');
+    const existingHistory = storedArray ? JSON.parse(storedArray) : [];
+    setSearchHistory(existingHistory);
+  }, []);
+
+  useEffect(() => {
+    if (valueForPokemonApiCall.length > 0) {
+      wrappedPokemonActions.getPokemonByName({ pokemonName: valueForPokemonApiCall });
+    }
+  }, [ valueForPokemonApiCall, wrappedPokemonActions ]);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+    <main className={ styles.main }>
+      <Search
+        searchHistory={ searchHistory }
+        placeholder='type pokemon name'
+        setValue={ setSearchValue }
+        value={ searchValue }
+        setValueForPokemonApiCall={ handleSetValueForPokemonApiCall }
+      />
+      {pokemon && <PokemonInfo pokemon={ pokemon } />}
     </main>
-  )
+  );
 }
